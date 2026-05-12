@@ -141,7 +141,7 @@ async function chatWithGemini(message) {
 async function chatWithNvidia(message) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
-      model: 'nvidia/llama-3.1-nemotron-70b-instruct',
+      model: 'meta/llama-3.3-70b-instruct',
       messages: [{ role: 'user', content: message }],
       temperature: 0.5,
       max_tokens: 1024
