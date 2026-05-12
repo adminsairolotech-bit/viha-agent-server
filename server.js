@@ -75,7 +75,7 @@ app.post('/chat', async (req, res) => {
 async function chatWithOpenRouter(message) {
   return new Promise((resolve, reject) => {
     const data = JSON.stringify({
-      model: 'anthropic/claude-3.5-sonnet',
+      model: 'anthropic/claude-3-haiku',
       messages: [{ role: 'user', content: message }]
     });
     const req = https.request({
