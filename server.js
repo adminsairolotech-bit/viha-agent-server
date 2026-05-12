@@ -92,8 +92,14 @@ async function chatWithOpenRouter(message) {
       let body = '';
       res.on('data', chunk => body += chunk);
       res.on('end', () => {
-        const json = JSON.parse(body);
-        resolve(json.choices[0].message.content);
+        try {
+          const json = JSON.parse(body);
+          if (json.error) reject(new Error(json.error.message || json.error));
+          else if (json.choices && json.choices[0]) resolve(json.choices[0].message.content);
+          else reject(new Error('No response from AI'));
+        } catch (e) {
+          reject(new Error(body));
+        }
       });
     });
     req.on('error', reject);
@@ -116,8 +122,14 @@ async function chatWithGemini(message) {
       let body = '';
       res.on('data', chunk => body += chunk);
       res.on('end', () => {
-        const json = JSON.parse(body);
-        resolve(json.candidates[0].content.parts[0].text);
+        try {
+          const json = JSON.parse(body);
+          if (json.error) reject(new Error(json.error.message || json.error));
+          else if (json.candidates && json.candidates[0]) resolve(json.candidates[0].content.parts[0].text);
+          else reject(new Error('No response from Gemini'));
+        } catch (e) {
+          reject(new Error(body));
+        }
       });
     });
     req.on('error', reject);
@@ -146,8 +158,14 @@ async function chatWithNvidia(message) {
       let body = '';
       res.on('data', chunk => body += chunk);
       res.on('end', () => {
-        const json = JSON.parse(body);
-        resolve(json.choices[0].message.content);
+        try {
+          const json = JSON.parse(body);
+          if (json.error) reject(new Error(json.error.message || json.error));
+          else if (json.choices && json.choices[0]) resolve(json.choices[0].message.content);
+          else reject(new Error('No response from NVIDIA'));
+        } catch (e) {
+          reject(new Error(body));
+        }
       });
     });
     req.on('error', reject);
@@ -174,8 +192,14 @@ async function chatWithOpusMax(message) {
       let body = '';
       res.on('data', chunk => body += chunk);
       res.on('end', () => {
-        const json = JSON.parse(body);
-        resolve(json.choices[0].message.content);
+        try {
+          const json = JSON.parse(body);
+          if (json.error) reject(new Error(json.error.message || json.error));
+          else if (json.choices && json.choices[0]) resolve(json.choices[0].message.content);
+          else reject(new Error('No response from OpusMax'));
+        } catch (e) {
+          reject(new Error(body));
+        }
       });
     });
     req.on('error', reject);
