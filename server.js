@@ -3,16 +3,34 @@ const TelegramBot = require('node-telegram-bot-api');
 const https = require('https');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+app.use(express.json());
 
-// API Keys from environment variables
+const PORT = process.env.PORT || 3000;
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const OPENROUTER_KEY = process.env.OPENROUTER_KEY;
 const GEMINI_KEY = process.env.GEMINI_KEY;
 const NVIDIA_KEY = process.env.NVIDIA_KEY;
 const OPUSMAX_KEY = process.env.OPUSMAX_KEY;
+const BASE_URL = process.env.BASE_URL || 'https://gentle-tenderness-production-8cce.up.railway.app';
 
-app.use(express.json());
+// Telegram Bot with Webhook
+const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: false });
+
+// Set webhook for Railway
+const webhookPath = '/webhook/telegram';
+const fullWebhookUrl = `${BASE_URL}${webhookPath}`;
+
+bot.setWebHook(fullWebhookUrl).then(() => {
+  console.log('✅ Webhook set:', fullWebhookUrl);
+}).catch(err => {
+  console.log('⚠️ Webhook error:', err.message);
+});
+
+// Webhook endpoint
+app.post(webhookPath, (req, res) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);
+});
 
 app.get('/', (req, res) => {
   res.json({
@@ -166,9 +184,7 @@ async function chatWithOpusMax(message) {
   });
 }
 
-// Telegram Bot
-const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
-
+// Telegram Commands
 bot.onText(/\/start/, (msg) => {
   bot.sendMessage(msg.chat.id, '🤖 VihaAgent Bot!\n\nCommands:\n/ai <msg> - OpenRouter AI\n/gemini <msg> - Gemini\n/nvidia <msg> - NVIDIA\n/opus <msg> - OpusMax\n/status - Server info');
 });
@@ -214,12 +230,16 @@ bot.onText(/\/opus (.+)/, (msg, match) => {
 });
 
 bot.on('polling_error', (error) => {
-  console.log('Telegram polling error:', error.code);
+  console.log('Telegram polling error:', error.code, error.message);
+});
+
+bot.on('webhook_error', (error) => {
+  console.log('Telegram webhook error:', error.code, error.message);
 });
 
 console.log('✅ All AI providers configured');
 console.log(`Server running on port ${PORT}`);
 
 app.listen(PORT, () => {
-  console.log(`✅ VihaAgent Server started`);
+  console.log(`✅ VihaAgent Server started on port ${PORT}`);
 });
